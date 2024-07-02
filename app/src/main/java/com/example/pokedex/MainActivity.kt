@@ -1,6 +1,7 @@
 package com.example.pokedex
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -86,11 +89,11 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = "pokemon_listScreen") {
                     composable("pokemon_listScreen") {
-                        homeScreen(viewmodel = viewmodel, navController = navController)
+                        HomeScreen(viewmodel = viewmodel, navController = navController)
                     }
                     composable("Pokemon_detailScreen/{name}") {
                         val pokemonName = it.arguments?.getString("name") ?: "ditto"
-                        detailScreen(
+                        DetailScreen(
                             pokemonName = pokemonName,
                             viewmodel = detailViewmodel
                         )
@@ -102,7 +105,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun homeScreen(viewmodel: PokemonViewModel, navController: NavController) {
+fun HomeScreen(viewmodel: PokemonViewModel, navController: NavController) {
+
+    val listState = rememberLazyListState()
+
     Surface(
         modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
     ) {
@@ -115,6 +121,16 @@ fun homeScreen(viewmodel: PokemonViewModel, navController: NavController) {
                 }
             }
         }
+//        LaunchedEffect(key1 = listState) {
+//            snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+//                .collect { visibleItems ->
+//                    val lastVisibleItem = visibleItems.lastOrNull()
+//                    if (lastVisibleItem != null && lastVisibleItem.index == pokemonList.size ) {
+//                        Log.d("mytag", "Loading more Pokémon")
+//                        viewmodel.loadPokemon()
+//                    }
+//                }
+//        }
         if ((pokemonList.isEmpty())) {
             Box(
                 modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -126,11 +142,19 @@ fun homeScreen(viewmodel: PokemonViewModel, navController: NavController) {
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(16.dp),
+                state = listState
             ) {
                 items(pokemonList.size) { index ->
                     Pokemon(pokemonList[index], navController = navController)
                     Spacer(modifier = Modifier.height(16.dp))
+
+
+//                    one method to load more pokemons
+                    if (index >= pokemonList.size-1){
+
+                        viewmodel.loadPokemon()
+                    }
                 }
             }
         }
@@ -138,7 +162,7 @@ fun homeScreen(viewmodel: PokemonViewModel, navController: NavController) {
 }
 
 @Composable
-fun detailScreen(
+fun DetailScreen(
     pokemonName: String, viewmodel: PokemonDetailViewModel
 ) {
     viewmodel.fetchPokemonDetail(pokemonName)

@@ -23,22 +23,38 @@ class PokemonViewModel(
     private val _showErrorChannel = Channel<Boolean>()
     val showErrorChannel = _showErrorChannel.receiveAsFlow()
 
+    private var currentOffset = 0
+    private val limit = 20
+    private var isLoading = false
+
 
     init {
-        viewModelScope.launch {
-            pokemonRepository.getPokemonList(20, 0).collectLatest { result ->
+        loadPokemon()
+    }
 
-                when (result) {
-                    is Response.Error -> _showErrorChannel.send(true)
-                    is Response.Success -> {
-                        result.data?.let { pokemon ->
-                            Log.d("myTag", pokemon[0].url)
-                            Log.d("myTag", pokemon[0].name)
-                            _pokemon.update { pokemon }
+    fun loadPokemon(){
+        if (!isLoading) {
+            isLoading = true
+            viewModelScope.launch {
+                pokemonRepository.getPokemonList(limit, currentOffset).collectLatest { result ->
+
+                    when (result) {
+                        is Response.Error -> {
+                            _showErrorChannel.send(true)
+                            isLoading = false
+                        }
+                        is Response.Success -> {
+                            result.data?.let { newPokemon ->
+                                _pokemon.update { currentList->
+                                    currentList + newPokemon
+                                }
+                                currentOffset += limit
+                            }
+                            isLoading = false
                         }
                     }
-                }
 
+                }
             }
         }
     }
