@@ -444,7 +444,8 @@ fun Pokemon(pokemon: Result, navController: NavController) {
             modifier = Modifier.padding(horizontal = 16.dp),
             text = pokemon.name[0].uppercase() + pokemon.name.substring(1),
             fontSize = 17.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White
         )
 
         Spacer(modifier = Modifier.height(6.dp))
