@@ -2,7 +2,6 @@ package com.example.pokedex.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pokedex.data.PokemonRepository
 import com.example.pokedex.data.Response
 import com.example.pokedex.data.model.Pokemon
@@ -16,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class PokemonDetailViewModel(
     private val pokemonRepository: PokemonRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _pokemonDetail = MutableStateFlow<Pokemon?>(null)
     val pokemonDetail = _pokemonDetail.asStateFlow()
@@ -24,14 +23,14 @@ class PokemonDetailViewModel(
     private val _showErrorChannel = Channel<Boolean>()
     val showErrorChannel = _showErrorChannel.receiveAsFlow()
 
-    fun fetchPokemonDetail(name :String){
+    fun fetchPokemonDetail(name: String) {
         viewModelScope.launch {
-            pokemonRepository.getPokemonDetail(name).collectLatest { result->
-                when(result){
+            pokemonRepository.getPokemonDetail(name).collectLatest { result ->
+                when (result) {
                     is Response.Error -> _showErrorChannel.send(true)
                     is Response.Success -> {
 
-                        result.data?.let { details->
+                        result.data?.let { details ->
 
                             _pokemonDetail.update {
                                 details

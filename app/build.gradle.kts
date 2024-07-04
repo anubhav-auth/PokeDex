@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.pokedex"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -86,5 +86,8 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     implementation("androidx.navigation:navigation-compose:$nav_version")
+
+//    palette
+    implementation("androidx.palette:palette:1.0.0")
 
 }

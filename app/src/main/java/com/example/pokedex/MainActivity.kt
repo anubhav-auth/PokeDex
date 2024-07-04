@@ -1,7 +1,6 @@
 package com.example.pokedex
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,11 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,9 +20,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,12 +34,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,7 +69,11 @@ import com.example.pokedex.data.model.Result
 import com.example.pokedex.presentation.PokemonDetailViewModel
 import com.example.pokedex.presentation.PokemonViewModel
 import com.example.pokedex.ui.theme.PokeDexTheme
+import com.example.pokedex.ui.theme.backGrad1
+import com.example.pokedex.ui.theme.backGrad2
+import com.example.pokedex.ui.theme.pokemonListItemBack
 import kotlinx.coroutines.flow.collectLatest
+
 
 class MainActivity : ComponentActivity() {
 
@@ -86,16 +100,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             PokeDexTheme {
                 val navController = rememberNavController()
+                val imageLoader = ImageLoader.Builder(this).crossfade(true).build()
 
                 NavHost(navController = navController, startDestination = "pokemon_listScreen") {
                     composable("pokemon_listScreen") {
-                        HomeScreen(viewmodel = viewmodel, navController = navController)
+                        HomeScreen(
+                            viewmodel = viewmodel,
+                            navController = navController
+                        )
                     }
-                    composable("Pokemon_detailScreen/{name}") {
+                    composable("Pokemon_detailScreen/{name}/{dominantColor}") {
                         val pokemonName = it.arguments?.getString("name") ?: "ditto"
+                        val dominantColor = it.arguments?.getString("dominantColor")?.toIntOrNull()
+                            ?.let { Color(it) } ?: Color.Blue
                         DetailScreen(
                             pokemonName = pokemonName,
-                            viewmodel = detailViewmodel
+                            viewmodel = detailViewmodel,
+                            imageLoader = imageLoader,
+                            dominantColor = dominantColor
+
                         )
                     }
                 }
@@ -105,15 +128,71 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScreen(viewmodel: PokemonViewModel, navController: NavController) {
+fun Searchbar(
+    viewmodel: PokemonViewModel,
+    modifier: Modifier = Modifier,
+    onSearch: (String) -> Unit = {}
+) {
+    var txt by remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(key1 = viewmodel.searchQuery) {
+        txt = viewmodel.searchQuery.value
+    }
+    BasicTextField(
+        value = txt,
+        onValueChange = {
+            txt = it
+            onSearch(it)
+        },
+        maxLines = 1,
+        singleLine = true,
+        textStyle = TextStyle(fontSize = 27.sp),
+        modifier = modifier
+            .padding(vertical = 21.dp, horizontal = 21.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .fillMaxWidth()
+            .height(45.dp)
+            .background(Color.White)
+            .border(
+                3.dp,
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xFFFEC20C),
+                        Color(0xFF2D4596),
+                        Color(0xFFFEC20C),
+                        Color(0xFF2D4596)
+                    )
+                ),
+                RoundedCornerShape(15.dp)
+            )
+            .padding(horizontal = 9.dp, vertical = 5.dp)
 
-    val listState = rememberLazyListState()
+    )
+}
+
+@Composable
+fun HomeScreen(
+    viewmodel: PokemonViewModel,
+    navController: NavController
+) {
 
     Surface(
-        modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    listOf(backGrad1, backGrad1, backGrad2),
+                    start = Offset.Zero,
+                    end = Offset.Infinite
+                )
+            )
     ) {
         val pokemonList = viewmodel.pokemon.collectAsState().value
         val context = LocalContext.current
+
+
+
         LaunchedEffect(key1 = viewmodel.showErrorChannel) {
             viewmodel.showErrorChannel.collectLatest { show ->
                 if (show) {
@@ -121,50 +200,59 @@ fun HomeScreen(viewmodel: PokemonViewModel, navController: NavController) {
                 }
             }
         }
-//        LaunchedEffect(key1 = listState) {
-//            snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-//                .collect { visibleItems ->
-//                    val lastVisibleItem = visibleItems.lastOrNull()
-//                    if (lastVisibleItem != null && lastVisibleItem.index == pokemonList.size ) {
-//                        Log.d("mytag", "Loading more Pokémon")
-//                        viewmodel.loadPokemon()
-//                    }
-//                }
-//        }
-        if ((pokemonList.isEmpty())) {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.size(36.dp))
+            Image(
+                painter = painterResource(id = R.drawable.poke_logo),
+                contentDescription = "poke Logo"
+            )
+            Searchbar(viewmodel) {
+                if (it.isNotBlank()) {
+                    viewmodel.searchPokemon(it)
+                } else {
+                    viewmodel.loadAlreadyLoadedList()
+                }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                contentPadding = PaddingValues(16.dp),
-                state = listState
-            ) {
-                items(pokemonList.size) { index ->
-                    Pokemon(pokemonList[index], navController = navController)
-                    Spacer(modifier = Modifier.height(16.dp))
+            when {
+                pokemonList.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
 
-
-//                    one method to load more pokemons
-                    if (index >= pokemonList.size-1){
-
-                        viewmodel.loadPokemon()
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2)
+                    ) {
+                        itemsIndexed(pokemonList) { index, items ->
+                            Pokemon(pokemon = items, navController = navController)
+//                          one method to load more pokemons
+                            if (index >= pokemonList.size - 1) {
+                                viewmodel.loadPokemon()
+                            }
+                        }
                     }
                 }
             }
         }
+
+
     }
 }
 
 @Composable
 fun DetailScreen(
-    pokemonName: String, viewmodel: PokemonDetailViewModel
+    pokemonName: String,
+    viewmodel: PokemonDetailViewModel,
+    imageLoader: ImageLoader,
+    dominantColor: Color
 ) {
+
     viewmodel.fetchPokemonDetail(pokemonName)
     val pokemonDetail by viewmodel.pokemonDetail.collectAsState()
 
@@ -176,10 +264,21 @@ fun DetailScreen(
             }
         }
     }
-    val imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+
 
     pokemonDetail?.let { detail ->
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        listOf(backGrad1, backGrad1, backGrad2),
+                        start = Offset.Zero,
+                        end = Offset.Infinite
+                    )
+                )
+        ) {
 
             item {
                 Text(detail.name, style = MaterialTheme.typography.bodyLarge)
@@ -205,30 +304,37 @@ fun DetailScreen(
 
 }
 
+
 @Composable
 fun Pokemon(pokemon: Result, navController: NavController) {
+    val id = pokemon.url.split("/").last { it.isNotEmpty() }.toInt()
 
     val imageState = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current).data(
-            getPokemonImageUrl(pokemon.url)
+            getPokemonImageUrl(id)
         ).size(Size.ORIGINAL).build()
     ).state
 
-    Column(modifier = Modifier
-        .clip(RoundedCornerShape(20.dp))
-        .height(300.dp)
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.primaryContainer)
-        .clickable {
-            navController.navigate("Pokemon_detailScreen/${pokemon.name}")
-        }
-    ) {
+    val dominantColor = Color.Green.toArgb()
 
-        if (imageState is AsyncImagePainter.State.Error) {
+    Column(
+        modifier = Modifier
+            .padding(12.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .size(250.dp)
+            .background(pokemonListItemBack)
+            .clickable {
+                navController.navigate("Pokemon_detailScreen/${pokemon.name}/${dominantColor}")
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
+    ) {
+        Text(text = "#$id", color = Color(0xFF76BBD7))
+        if (imageState is AsyncImagePainter.State.Loading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -239,10 +345,10 @@ fun Pokemon(pokemon: Result, navController: NavController) {
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(150.dp),
                 painter = imageState.painter,
                 contentDescription = pokemon.name,
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         }
 
@@ -250,7 +356,7 @@ fun Pokemon(pokemon: Result, navController: NavController) {
 
         Text(
             modifier = Modifier.padding(horizontal = 16.dp),
-            text = pokemon.name,
+            text = pokemon.name[0].uppercase() + pokemon.name.substring(1),
             fontSize = 17.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -259,7 +365,6 @@ fun Pokemon(pokemon: Result, navController: NavController) {
     }
 }
 
-fun getPokemonImageUrl(pokemonUrl: String): String {
-    val id = pokemonUrl.split("/").last { it.isNotEmpty() }
+fun getPokemonImageUrl(id: Int): String {
     return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
 }
