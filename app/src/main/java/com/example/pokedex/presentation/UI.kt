@@ -29,21 +29,22 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -121,12 +122,12 @@ fun HomeScreen(
     navController: NavController
 ) {
 
-    Surface(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.linearGradient(
-                    listOf(backGrad1, backGrad1, backGrad2),
+                    listOf(backGrad2, backGrad1, backGrad2),
                     start = Offset.Zero,
                     end = Offset.Infinite
                 )
@@ -219,7 +220,7 @@ fun DetailScreen(
                 .fillMaxSize()
                 .background(
                     Brush.linearGradient(
-                        listOf(backGrad1, backGrad1, backGrad2),
+                        listOf(backGrad2, backGrad1, backGrad1, backGrad2),
                         start = Offset.Zero,
                         end = Offset.Infinite
                     )
@@ -234,7 +235,7 @@ fun DetailScreen(
                 ) {
 
                     Icon(
-                        Icons.Filled.ArrowBack,
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "backArrow",
                         modifier = Modifier
                             .padding(start = 16.dp)
@@ -281,7 +282,8 @@ fun DetailScreen(
                     Text(
                         text = detail.name[0].uppercase() + detail.name.substring(1),
                         fontSize = 30.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.height(25.dp))
                     DynamicChip(chipText = detail.types, border = dominantColor)
@@ -309,7 +311,8 @@ fun DetailScreen(
                             Text(
                                 " ${detail.height}",
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
                         }
                         Row(
@@ -329,7 +332,8 @@ fun DetailScreen(
                             Text(
                                 " ${detail.weight}",
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
                         }
                     }
@@ -398,10 +402,13 @@ fun Pokemon(pokemon: Result, navController: NavController) {
 
     Column(
         modifier = Modifier
+
             .padding(12.dp)
+            .shadow(15.dp)
             .clip(RoundedCornerShape(20.dp))
             .size(250.dp)
             .background(pokemonListItemBack)
+
             .clickable {
                 navController.navigate("Pokemon_detailScreen/${pokemon.name}/${dominantColor}")
             },
@@ -447,12 +454,12 @@ fun Pokemon(pokemon: Result, navController: NavController) {
 @Composable
 fun StatProgressbar(label: String, value: Int, maxValue: Int, barColor: Color = Color.White) {
     val progress = remember {
-        mutableStateOf(0f)
+        mutableFloatStateOf(0f)
     }
-    val animatedProgress = animateFloatAsState(targetValue = progress.value)
+    val animatedProgress = animateFloatAsState(targetValue = progress.floatValue, label = "")
 
     LaunchedEffect(key1 = value) {
-        progress.value = value / maxValue.toFloat()
+        progress.floatValue = value / maxValue.toFloat()
     }
 
     Row(
