@@ -16,7 +16,7 @@ Welcome to the Pokédex App! This application allows users to explore and learn 
 
 ## Installation
 
-1. Go to the [Releases](https://github.com/anubhav-auth/pokedex-app/releases) page.
+1. Go to the [Releases](https://github.com/anubhav-auth/PokeDex/releases) page.
 2. Download the latest release.
 
 ## Usage
