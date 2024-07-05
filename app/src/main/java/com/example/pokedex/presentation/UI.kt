@@ -509,7 +509,6 @@ fun StatProgressbar(label: String, value: Int, maxValue: Int, barColor: Color = 
                             listOf(
                                 barColor,
                                 barColor,
-                                barColor,
                                 Color.White
                             )
                         ), RoundedCornerShape(10.dp)
