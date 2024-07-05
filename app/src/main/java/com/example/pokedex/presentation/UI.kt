@@ -122,6 +122,8 @@ fun HomeScreen(
     navController: NavController
 ) {
 
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -175,7 +177,7 @@ fun HomeScreen(
                         columns = GridCells.Fixed(2)
                     ) {
                         itemsIndexed(pokemonList) { index, items ->
-                            Pokemon(pokemon = items, navController = navController)
+                            Pokemon(pokemon = items, navController = navController, viewmodel = viewmodel)
 //                          one method to load more pokemons
                             if (index >= pokemonList.size - 1) {
                                 viewmodel.loadPokemon()
@@ -389,16 +391,24 @@ fun DetailScreen(
 
 
 @Composable
-fun Pokemon(pokemon: Result, navController: NavController) {
+fun Pokemon(pokemon: Result, navController: NavController, viewmodel: PokemonViewModel) {
     val id = pokemon.url.split("/").last { it.isNotEmpty() }.toInt()
+    val defaulDominantColor = Color.Green
+    var dominantColor by remember {
+        mutableStateOf(defaulDominantColor)
+    }
 
+//    instead of target new version of coil has onSuccess
     val imageState = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current).data(
             getPokemonImageUrl(id)
-        ).size(Size.ORIGINAL).build()
+        ).size(Size.ORIGINAL).build(),
+        onSuccess = { success->
+            viewmodel.calcDominantColor(success.result.drawable){ color ->
+                dominantColor = color
+            }
+        }
     ).state
-
-    val dominantColor = Color.Green.toArgb()
 
     Column(
         modifier = Modifier
@@ -408,13 +418,14 @@ fun Pokemon(pokemon: Result, navController: NavController) {
             .clip(RoundedCornerShape(20.dp))
             .size(250.dp)
             .background(pokemonListItemBack)
-
             .clickable {
-                navController.navigate("Pokemon_detailScreen/${pokemon.name}/${dominantColor}")
+                navController.navigate("Pokemon_detailScreen/${pokemon.name}/${dominantColor.toArgb()}")
             },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
+
+
         Text(text = "#$id", color = Color(0xFF76BBD7))
         if (imageState is AsyncImagePainter.State.Loading) {
             Box(
