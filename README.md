@@ -1,7 +1,7 @@
 # Pokédex App - Explore and Learn About Pokémon
 
 <p align="center">
-  <img src="[logo-url]" alt="Pokédex App Logo" style="width: 50%; max-width: 200px; height: auto;">
+  <img src="https://github.com/anubhav-auth/PokeDex/blob/master/assets/IMG_20240904_191727.jpg" alt="Pokédex App Logo" style="width: 50%; max-width: 200px; height: auto;">
 </p>
 
 ## Overview
@@ -49,7 +49,7 @@ Welcome to the **Pokédex App**! This application allows users to explore and le
 ## Getting Started
 
 ### 1. Install the App
-- [Download the latest release](https://github.com/yourusername/PokedexApp/releases) from the releases section.
+- [Download the latest release](https://github.com/anubhav-auth/PokeDex/releases) from the releases section.
 
 ### 2. Browse Pokémon
 - Browse through the list of Pokémon.
@@ -68,13 +68,14 @@ Welcome to the **Pokédex App**! This application allows users to explore and le
 
 Check out a video demo of the app in action:
 
-[![Watch the video](https://img.youtube.com/vi/[YourVideoID]/0.jpg)](https://www.youtube.com/watch?v=[YourVideoID])
+https://github.com/user-attachments/assets/fb066b4d-7370-44e8-9c1e-4b8a4f5aa63f
+
 
 ## Screenshots
 
-| Pokémon List                                                           | Pokémon Stats                                                        | Dominant Color Background                                              |
+| Pokémon List                                                           | Pokémon Stats                                                        | Pokemon Search                                            |
 |------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
-| ![Pokémon List][Pokemon-List-Image]                                    | ![Pokémon Stats][Pokemon-Stats-Image]                                 | ![Dominant Color Background][Dominant-Color-Background-Image]         |
+| ![Pokémon List][Pokemon-List-Image]                                    | ![Pokémon Stats][Pokemon-Stats-Image]                                 | ![Pokemon Search][Pokemon-Search-Image]         |
 
 ## Contributing
 
@@ -82,7 +83,7 @@ We welcome contributions! Please fork the repository and submit a pull request.
 
 ## License
 
-Pokédex App is licensed under the MIT License - see the [LICENSE](https://github.com/yourusername/PokedexApp/blob/master/LICENSE.txt) file for details.
+Pokédex App is licensed under the MIT License - see the [LICENSE](https://github.com/anubhav-auth/PokeDex/blob/master/LICENSE.txt) file for details.
 
 ## Acknowledgements
 
@@ -91,7 +92,7 @@ Pokédex App is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Contact
 
-For any inquiries or feedback, please reach out to [email](mailto:anubahvjaiswal2002@gmail.com).
+For any inquiries or feedback, please reach out to [email](mailto:anubahvauth2002@gmail.com).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Kotlin]: https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white
@@ -105,7 +106,6 @@ For any inquiries or feedback, please reach out to [email](mailto:anubahvjaiswal
 [PokeAPI]: https://img.shields.io/badge/PokeAPI-FFCB05?style=for-the-badge&logo=pokemon&logoColor=white
 [PokeAPI-url]: https://pokeapi.co/
 
-[Pokemon-List-Image]: https://github.com/yourusername/PokedexApp/blob/master/assets/screenshot_pokemon_list.png
-[Pokemon-Stats-Image]: https://github.com/yourusername/PokedexApp/blob/master/assets/screenshot_pokemon_stats.png
-[Dominant-Color-Background-Image]: https://github.com/yourusername/PokedexApp/blob/master/assets/screenshot_dominant_color_background.png
-[logo-url]: https://your-logo-url.com/logo.png
+[Pokemon-List-Image]: https://github.com/anubhav-auth/PokeDex/blob/master/assets/Screenshot_2024-09-04-18-47-17-724_com.example.pokedex.jpg
+[Pokemon-Stats-Image]: https://github.com/anubhav-auth/PokeDex/blob/master/assets/Screenshot_2024-09-04-18-47-23-215_com.example.pokedex.jpg
+[Pokemon-Search-Image]: https://github.com/anubhav-auth/PokeDex/blob/master/assets/Screenshot_2024-09-04-18-47-44-447_com.example.pokedex.jpg
